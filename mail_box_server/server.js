@@ -1,34 +1,29 @@
 import { config } from "dotenv";
 config();
-import cors from "cors"
+import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
 import userRoutes from "./routes/userRoutes.js";
+import mailRoutes from "./routes/mailRoutes.js";
 const app = express();
 
-
-app.use(cors({
-    origin: "*",
+app.use(
+  cors({
+    origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-  }));
+  })
+);
 
-  
 app.use(express.json());
 
 // API Routes
 app.use("/user", userRoutes);
-// get /
+app.use("/mail", mailRoutes);
 
-app.get("/", (req, res) => {
-  const users = [
-    { id: 1, name: "Alice", age: 25 },
-    { id: 2, name: "Bob", age: 30 },
-    { id: 3, name: "Charlie", age: 28 },
-  ];
-
-  res.json(users);
+app.get("*", (req, res) => {
+  res.json({ message: "This is the home endpoint" });
 });
 
 // Database Sync
