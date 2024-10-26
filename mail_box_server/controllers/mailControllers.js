@@ -51,9 +51,23 @@ export const sendMail = async (req, res) => {
 export const getSentMails = async (req, res) => {
     try {
       const sentMails = await Mail.find({ sender: req.user._id }).populate('recipients', 'email');
+
       res.status(200).json(sentMails);
     } catch (error) {
       res.status(500).json({ message: 'Error retrieving sent mails.', error });
+    }
+  };
+
+export const getSentMailById = async (req, res) => {
+    try {
+      const mail = await Mail.findById(req.params.mailId).populate('sender', 'email recipients', 'email');
+      if (!mail) {
+        return res.status(404).json({ message: 'Mail not found.' });
+      }
+      res.status(200).json(mail);
+    } catch (error) {
+      console.error("Error retrieving mail:", error);
+      res.status(500).json({ message: 'An error occurred while retrieving the email.', error });
     }
   };
 
