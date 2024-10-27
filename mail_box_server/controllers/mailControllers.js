@@ -54,6 +54,7 @@ export const sendMail = async (req, res) => {
 
 export const getSentMails = async (req, res) => {
   try {
+    console.log("object sent");
     //   const sentMails = await Mail.find({ sender: req.user._id }).populate('recipients', 'email');
     const sentMails = await Mail.find({ sender: req.user._id })
       .select("sentAt body.blocks isRead subject _id")
@@ -91,6 +92,7 @@ export const getSentMailById = async (req, res) => {
 
 export const getReceivedMails = async (req, res) => {
   try {
+    console.log("Getting");
     const receivedMails = await Mail.find({ recipients: req.user._id })
       .select("sentAt body.blocks isRead subject _id")
       .populate("sender", "email");
@@ -101,5 +103,22 @@ export const getReceivedMails = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error retrieving received mails.", error });
+  }
+};
+
+export const deleteSentMail = async (req, res) => {
+  try {
+    const mail = await Mail.findByIdAndDelete(req.params.id);
+
+    if (!mail) {
+      return res.status(404).json({ message: "Mail not found." });
+    }
+
+    res.status(200).json({ message: "Mail deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting mail:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while deleting the email.", error });
   }
 };
