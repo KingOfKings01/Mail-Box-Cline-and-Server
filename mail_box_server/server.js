@@ -28,8 +28,6 @@ app.get("*", (req, res) => {
 
 // Database Sync
 async function initializeDatabase() {
-  // await sequelize.sync({ force: false });
-
   const URL = process.env.MONGODB_SERVER_URL;
   await mongoose.connect(URL);
 }

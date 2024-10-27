@@ -6,6 +6,9 @@ const router = Router();
 
 router.get('/read/:id', authMiddleware, getSentMailById);
 router.post('/send', authMiddleware, sendMail);
+// router.post('/send', authMiddleware, (req, res)=>{
+//     res.json({test:'TestMail'})
+// });
 router.get('/sent-mails', authMiddleware, getSentMails);
 router.get('/received-mails', authMiddleware, getReceivedMails);
 

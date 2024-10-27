@@ -3,7 +3,6 @@ import { User } from "../models/User.js";
 
 export const sendMail = async (req, res) => {
   const { to, subject, body } = req.body;
-
   try {
     // Step 1: Validate input fields
     if (!to || !subject || !body) {
@@ -14,19 +13,20 @@ export const sendMail = async (req, res) => {
 
     // Step 2: Get the authenticated user (sender) from the token
     const sender = req.user; // Assuming `req.user` is set after token verification
-
+    
     // Step 3: Find the recipient(s) in the database
     const recipients = await User.find({ email: { $in: to } });
     if (recipients.length === 0) {
-      return res.status(404).json({ message: "Recipient(s) not found." });
+        return res.status(404).json({ message: "Recipient(s) not found." });
     }
-
+    
     // Step 4: Create and save the mail entry in the database
     const mail = new Mail({
       sender: sender._id,
       recipients: recipients.map((recipient) => recipient._id),
       subject,
       body,
+      isRead: false,
       sentAt: new Date(),
     });
 
@@ -56,7 +56,7 @@ export const getSentMails = async (req, res) => {
   try {
     //   const sentMails = await Mail.find({ sender: req.user._id }).populate('recipients', 'email');
     const sentMails = await Mail.find({ sender: req.user._id })
-      .select("sentAt body.blocks subject _id")
+      .select("sentAt body.blocks isRead subject _id")
       .populate("recipients", "email");
 
     res.status(200).json(sentMails);
@@ -66,30 +66,33 @@ export const getSentMails = async (req, res) => {
 };
 
 export const getSentMailById = async (req, res) => {
-    try {
-      const mail = await Mail.findById(req.params.id)
-        .populate('sender', 'email')
-        .populate('recipients', 'email');
-      
-      if (!mail) {
-        return res.status(404).json({ message: "Mail not found." });
-      }
-      
-      res.status(200).json(mail);
-    } catch (error) {
-      console.error("Error retrieving mail:", error);
-      res.status(500).json({
-        message: "An error occurred while retrieving the email.",
-        error,
-      });
+  try {
+    const mail = await Mail.findById(req.params.id)
+      .populate("sender", "email")
+      .populate("recipients", "email");
+
+    if (!mail) {
+      return res.status(404).json({ message: "Mail not found." });
     }
-  };
-  
+
+    // set isRead to true
+    mail.isRead = true;
+    await mail.save();
+
+    res.status(200).json(mail);
+  } catch (error) {
+    console.error("Error retrieving mail:", error);
+    res.status(500).json({
+      message: "An error occurred while retrieving the email.",
+      error,
+    });
+  }
+};
 
 export const getReceivedMails = async (req, res) => {
   try {
     const receivedMails = await Mail.find({ recipients: req.user._id })
-      .select("sentAt body.blocks subject _id")
+      .select("sentAt body.blocks isRead subject _id")
       .populate("sender", "email");
 
     res.status(200).json(receivedMails);

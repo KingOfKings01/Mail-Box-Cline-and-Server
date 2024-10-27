@@ -21,6 +21,10 @@ const mailSchema = new Schema({
     type: Object, // Here store DraftJS content in raw JSON format
     required: true,
   },
+  isRead:{
+    type: Boolean,
+    default: false,
+  },
   sentAt: {
     type: Date,
     default: Date.now,
