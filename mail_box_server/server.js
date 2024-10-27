@@ -23,7 +23,7 @@ app.use("/user", userRoutes);
 app.use("/mail", mailRoutes);
 
 app.get("*", (req, res) => {
-  res.json({ message: "This is the home endpoint" });
+  res.json({ message: "This is the endpoint" });
 });
 
 // Database Sync
